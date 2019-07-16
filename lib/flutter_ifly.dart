@@ -17,4 +17,10 @@ class FlutterIfly {
     return res;
   }
 
+  static Future<String> listen() async {
+    // res = "你好"
+    final String res = await _channel.invokeMethod('listen');
+    return res;
+  }
+
 }

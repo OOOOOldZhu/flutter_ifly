@@ -23,10 +23,12 @@ public class FlutterIflyPlugin implements MethodCallHandler {
 
         SpeechUtility.createUtility(registrar.activity(), SpeechConstant.APPID +"=5d2db447");
         // boolean isCn, Activity activity, VoiceListener voiceListener
-        Ifly.initIfly(true, registrar.activity(), new VoiceListener() {
+        Ifly.initIfly(true,true, registrar.activity(), new VoiceListener() {
             @Override
             public void onStatus(int status, Object msg) {
-                //listenResult
+                if(status == Ifly.ON_MSG){
+                    listenResult.success(msg.toString());
+                }
             }
         });
 
@@ -43,7 +45,8 @@ public class FlutterIflyPlugin implements MethodCallHandler {
         } else if (call.method.equals("listen")) {
 
             listenResult = result;
-            Ifly.startListening();
+            //Ifly.startListening();
+            Ifly.listenWithUI();
 
         }else if (call.method.equals("speak")) {
 

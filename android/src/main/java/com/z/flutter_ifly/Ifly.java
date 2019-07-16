@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.iflytek.cloud.ErrorCode;
 import com.iflytek.cloud.InitListener;
@@ -14,6 +15,8 @@ import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.SpeechSynthesizer;
 import com.iflytek.cloud.SynthesizerListener;
+import com.iflytek.cloud.ui.RecognizerDialog;
+import com.iflytek.cloud.ui.RecognizerDialogListener;
 
 /*
  * ：Created by z on 2019/2/23
@@ -31,7 +34,7 @@ public class Ifly {
     private static SpeechRecognizer speechRecognizer;
     private static VoiceListener staticVoiceListener;
 
-    public static void initIfly(boolean isCn, Activity activity, VoiceListener voiceListener) {
+    public static void initIfly(boolean withUI, boolean isCn, Activity activity, VoiceListener voiceListener) {
 
         //if (speechRecognizer != null) return;//这句话应该删除，因为创建两个fragment的时候，第二个fragment不会new Ifly
         staticVoiceListener = voiceListener;
@@ -49,9 +52,28 @@ public class Ifly {
                 }
             }
         };
-        Log.d(TAG, "initIfly: - - - - - - - - - - - - - - - - - - - - - - - - - > "+activity);
+
+        Log.d(TAG, "initIfly: - - - - - - - - - - - - - - - - - - - - - - - - - > " + activity);
+
+        if (withUI) {
+            initListenWithUI(isCn, activity, initListener);
+        } else {
+            initListen(activity, voiceListener, initListener);
+        }
+
+        if (speechSynthesizer == null) {
+            initSpeak(activity, new InitListener() {
+                @Override
+                public void onInit(int i) {
+                    Log.d(TAG, "onInit: " + i);
+                }
+            });
+        }
+    }
+
+    public static void initListen(Activity activity, VoiceListener voiceListener, InitListener initListener) {
         speechRecognizer = SpeechRecognizer.createRecognizer(activity, initListener);
-        Log.d(TAG, "initIfly: - - - - - - - - - - - - - - - - - - - - - - - - - > "+speechRecognizer);
+        Log.d(TAG, "initIfly: - - - - - - - - - - - - - - - - - - - - - - - - - > " + speechRecognizer);
         speechRecognizer.setParameter(SpeechConstant.DOMAIN, "iat");
         //zh_cn en_GB  com.sun.javafx.font  PrismFontFile.java
         // http://mscdoc.xfyun.cn/android/api/    中的SpeechRecognizer类
@@ -129,14 +151,6 @@ public class Ifly {
             public void onEvent(int eventType, int arg1, int arg2, Bundle obj) {
             }
         };
-        if(speechSynthesizer == null){
-            initSpeak(activity, new InitListener() {
-                @Override
-                public void onInit(int i) {
-                    Log.d(TAG, "onInit: "+i);
-                }
-            });
-        }
     }
 
     public static void startListening() {
@@ -203,7 +217,7 @@ public class Ifly {
                 //播放进度回调
                 //percent为播放进度0~100,beginPos为播放音频在文本中开始位置，endPos表示播放音频在文本中结束位置.
                 public void onSpeakProgress(int percent, int beginPos, int endPos) {
-                    if(percent == 100){
+                    if (percent == 100) {
                         speakListenner.onEnd();
                     }
                 }
@@ -219,6 +233,80 @@ public class Ifly {
                 }
             });
         }
+    }
+
+    private static RecognizerDialog mIatDialog;
+
+    private static void initListenWithUI(boolean isCN, Context context, InitListener initListener) {
+
+        // 初始化听写Dialog，如果只使用有UI听写功能，无需创建SpeechRecognizer
+        // 使用UI听写功能，请根据sdk文件目录下的notice.txt,放置布局文件和图片资源
+        mIatDialog = new RecognizerDialog(context, initListener);
+
+        //以下为dialog设置听写参数
+        mIatDialog.setParameter(SpeechConstant.DOMAIN, "iat");
+        //zh_cn en_GB  com.sun.javafx.font  PrismFontFile.java
+        // http://mscdoc.xfyun.cn/android/api/    中的SpeechRecognizer类
+
+        if (isCN) {
+            mIatDialog.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
+            mIatDialog.setParameter(SpeechConstant.ACCENT, "mandarin ");
+        } else {
+            mIatDialog.setParameter(SpeechConstant.LANGUAGE, "en_us");
+            mIatDialog.setParameter(SpeechConstant.ACCENT, null);
+        }
+
+        //开始识别并设置监听器
+        mIatDialog.setListener(new RecognizerDialogListener() {
+            @Override
+            public void onResult(RecognizerResult results, boolean isLast) {
+                Log.d(TAG, "onResult: ");
+                try {
+                    String json = results.getResultString();
+                    String text = JsonParser.parseIatResult(json);
+                    if (text.equals(".") || text.equals("。") || text.equals("？") || text.equals("")) {
+
+                    } else {
+                        staticVoiceListener.onStatus(ON_MSG, text);
+                    }
+                    if (isLast) {
+                        Log.d(TAG, "onResult()最后一次 : " + results.getResultString());
+                        speechRecognizer.stopListening();
+                    }
+                } catch (Exception e) {
+                    Log.i(TAG, "voice返回结果的异常 : " + e);
+                    staticVoiceListener.onStatus(ERR, e);
+                }
+            }
+
+            @Override
+            public void onError(SpeechError error) {
+                try {
+                    Log.w(TAG, "onError: " + error.getHtmlDescription(true));
+                    Log.d(TAG, "语音识别报错onError() :" + error.getErrorCode() + "  " + error.getErrorDescription());
+                    staticVoiceListener.onStatus(ERR, error);
+                    speechRecognizer.stopListening();
+                    // Tips：
+                    // 错误码：10118(您没有说话)，可能是录音机权限被禁，需要提示用户打开应用的录音权限。
+                    // 如果使用本地功能（语记）需要提示用户开启语记的录音权限。
+                    //抬起 ，关闭动画
+                } catch (Exception e) {
+                    Log.i(TAG, "onError()异常 : " + e);
+                }
+            }
+        });
+
+    }
+
+    public static void listenWithUI(/*boolean isCN, Context context*/) {
+//        if (mIatDialog == null) {
+//            initListenWithUI(isCN, context);
+//        }
+        //显示听写对话框
+        //mIatDialog.set
+        mIatDialog.show();
+        TextView txt = (TextView) mIatDialog.getWindow().getDecorView().findViewWithTag("textlink");
+        txt.setText("power by microduino");
     }
 
 }
