@@ -1,0 +1,63 @@
+group 'com.z.flutter_ifly'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    repositories {
+//        google()
+//        jcenter()
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
+
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+    }
+}
+
+
+rootProject.allprojects {
+    repositories {
+//        google()
+//        jcenter()
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
+
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 16
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters "armeabi-v7a"
+        }
+    }
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+    allprojects {
+        repositories {
+            maven{
+                url 'http://libmsc.xfyun.cn/repository/maven-releases/'
+            }
+            jcenter()
+            mavenCentral()
+        }
+    }
+}
+
+dependencies {
+    //implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation files('./libs/Sunflower.jar')
+    implementation files('./libs/Msc.jar')
+}
