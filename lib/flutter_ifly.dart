@@ -10,4 +10,11 @@ class FlutterIfly {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
+
+  static Future<String> speak(String dataFromJs) async {
+    // res = "complete"
+    final String res = await _channel.invokeMethod('speak', dataFromJs);
+    return res;
+  }
+
 }

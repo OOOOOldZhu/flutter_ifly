@@ -12,6 +12,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
   String _platformVersion = 'Unknown';
 
   @override
@@ -25,7 +26,7 @@ class _MyAppState extends State<MyApp> {
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      platformVersion = await FlutterIfly.platformVersion;
+      platformVersion = 'success . . . .';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -38,6 +39,12 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _platformVersion = platformVersion;
     });
+
+  }
+
+  _onClick() async {
+    print('_onClick - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - > ');
+    await FlutterIfly.speak("从这里我们可看出来是一个函数,既然知道是个函数，那我们该如何使用呢");
   }
 
   @override
@@ -48,7 +55,13 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: new Container(
+                child:
+                     GestureDetector(
+                         onTap: _onClick,//写入方法名称就可以了，但是是无参的
+                         child: Text("dianji"),
+                     )
+                ),
         ),
       ),
     );

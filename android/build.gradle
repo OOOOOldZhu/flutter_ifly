@@ -58,6 +58,6 @@ android {
 
 dependencies {
     //implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation files('./libs/Sunflower.jar')
+//    implementation files('./libs/Sunflower.jar')
     implementation files('./libs/Msc.jar')
 }
