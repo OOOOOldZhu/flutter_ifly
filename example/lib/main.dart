@@ -49,9 +49,12 @@ class _MyAppState extends State<MyApp> {
 
   _onClick() async {
     print('_onClick - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - > ');
-//    await FlutterIfly.speak("点击这的文字,播放语音.点击这的文字,播放语音.点击这的文字,播放语音.点击这的文字,播放语音.");
-    String str = await FlutterIfly.listen();
-    print("语音识别结果 - - - - - - - - - - - - - - - - - - - -  > "+str);
+
+    String str = await FlutterIfly.speak("我喜欢你！");
+    print("朗读完毕    - - - - - - - - - - - - - - - - - - - -  > "+str);
+
+//    String str = await FlutterIfly.listen();
+//    print("语音识别结果 - - - - - - - - - - - - - - - - - - - -  > "+str);
   }
 
   @override

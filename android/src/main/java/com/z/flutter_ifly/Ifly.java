@@ -195,7 +195,7 @@ public class Ifly {
 
                 //会话结束回调接口，没有错误时，error为null
                 public void onCompleted(SpeechError error) {
-
+                    speakListenner.onEnd();
                 }
 
                 //缓冲进度回调
@@ -218,7 +218,7 @@ public class Ifly {
                 //percent为播放进度0~100,beginPos为播放音频在文本中开始位置，endPos表示播放音频在文本中结束位置.
                 public void onSpeakProgress(int percent, int beginPos, int endPos) {
                     if (percent == 100) {
-                        speakListenner.onEnd();
+                        //speakListenner.onEnd();
                     }
                 }
 
