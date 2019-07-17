@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_ifly/flutter_ifly.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() => runApp(MyApp());
 
@@ -26,6 +27,10 @@ class _MyAppState extends State<MyApp> {
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
+
+      await PermissionHandler().requestPermissions([PermissionGroup.microphone]);
+      await PermissionHandler().requestPermissions([PermissionGroup.storage]);
+
       platformVersion = 'success . . . .';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
@@ -51,6 +56,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(

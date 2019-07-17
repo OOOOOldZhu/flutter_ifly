@@ -271,7 +271,7 @@ public class Ifly {
                     }
                     if (isLast) {
                         Log.d(TAG, "onResult()最后一次 : " + results.getResultString());
-                        speechRecognizer.stopListening();
+                        //mIatDialog.stop();
                     }
                 } catch (Exception e) {
                     Log.i(TAG, "voice返回结果的异常 : " + e);
@@ -285,7 +285,7 @@ public class Ifly {
                     Log.w(TAG, "onError: " + error.getHtmlDescription(true));
                     Log.d(TAG, "语音识别报错onError() :" + error.getErrorCode() + "  " + error.getErrorDescription());
                     staticVoiceListener.onStatus(ERR, error);
-                    speechRecognizer.stopListening();
+                    //mIatDialog.stopListening();
                     // Tips：
                     // 错误码：10118(您没有说话)，可能是录音机权限被禁，需要提示用户打开应用的录音权限。
                     // 如果使用本地功能（语记）需要提示用户开启语记的录音权限。
