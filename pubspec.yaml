@@ -1,8 +1,8 @@
 name: flutter_ifly
 description: ifly flutter plugin
 version: 0.0.1
-author:
-homepage:
+author:  haiwen.zhu
+homepage: https://github.com/OOOOOldZhu/flutter_ifly
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
